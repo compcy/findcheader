@@ -25,12 +25,14 @@ std_headers = [r"<assert.h>", r"<complex.h>", r"ctype.h", r"<errno.h>",
 standard = []
 suspicious = []
 
-def location_in_file(filename, header):
+
+def location_in_file(filename: str, header: str) -> (int, int):
     with open(filename) as infile:
         for (line_num, line) in enumerate(infile.readlines()):
             loc = line.find(header)
             if loc >= 0:
-                return (line_num+1, loc)
+                return line_num + 1, loc
+
 
 with open(filename, 'r') as infile:
     headers = re.findall(r"<.*\.h>", infile.read())
@@ -39,15 +41,18 @@ with open(filename, 'r') as infile:
             standard.append(header)
         else:
             suspicious.append(header)
-            
-def print_header_warning(header, warning):
+
+
+def print_header_warning(header: str, warning: str):
     (line_num, location) = location_in_file(filename, header)
-    print(r"{filename}:{line}:{location} warning: {warning} '{header}'".format(filename=filename, line=line_num, location=location, warning=warning, header=header))
-            
+    print(r"{filename}:{line}:{location} warning: {warning} '{header}'".format(
+        filename=filename, line=line_num, location=location, warning=warning, header=header))
+
+
 if standard:
     for header in standard:
         print_header_warning(header, r"Use of C-header")
     
 if suspicious:
     for header in suspicious:
-        print_header_warning(header, r"Use of suspicous header (might be C)")
+        print_header_warning(header, r"Use of suspicious header (might be C)")
