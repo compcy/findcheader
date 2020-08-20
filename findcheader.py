@@ -15,6 +15,13 @@ std_headers = [r"<assert.h>", r"<complex.h>", r"ctype.h", r"<errno.h>",
                r"<wctype.h>"]
 
 
+def find_headers(filename: str) -> [str]:
+    """Finds potential interesting headers in a file."""
+    with open(filename, 'r') as infile:
+        found_headers = re.findall(r"<.*\.h>", infile.read())
+    return found_headers
+
+
 def location_in_file(filename: str, header: str) -> (int, int):
     """Determines the usage location of a specified header in a file."""
     with open(filename) as infile:
@@ -45,13 +52,12 @@ if __name__ == "__main__":
     standard = []
     suspicious = []
 
-    with open(filename, 'r') as infile:
-        headers = re.findall(r"<.*\.h>", infile.read())
-        for header in headers:
-            if header in std_headers:
-                standard.append(header)
-            else:
-                suspicious.append(header)
+    headers = find_headers(filename)
+    for header in headers:
+        if header in std_headers:
+            standard.append(header)
+        else:
+            suspicious.append(header)
 
     if standard:
         for header in standard:
