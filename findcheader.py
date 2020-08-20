@@ -1,6 +1,7 @@
 #!python3
 """findcheader will find uses of C headers in C++ code files."""
 
+import argparse
 import os
 import re
 import sys
@@ -40,19 +41,19 @@ def print_header_warning(filename: str, header_str: str, warning: str):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print(r"Error, no input file.")
-        sys.exit()
+    parser = argparse.ArgumentParser(description=r"Find uses of C-Headers.")
+    parser.add_argument('input_file', type=str, help=r"The file to parse")
+    parser.add_argument('--suspicious', dest='suspicious', action='store_true',
+                        help=r"Print warnings for suspicious files.")
+    args = parser.parse_args()
 
-    input_file = sys.argv[1]
-
-    if not os.path.isfile(input_file):
+    if not os.path.isfile(args.input_file):
         sys.exit()
 
     standard = []
     suspicious = []
 
-    headers = find_headers(input_file)
+    headers = find_headers(args.input_file)
     for header in headers:
         if header in std_headers:
             standard.append(header)
@@ -61,8 +62,8 @@ if __name__ == "__main__":
 
     if standard:
         for header in standard:
-            print_header_warning(input_file, header, r"Use of C-header")
+            print_header_warning(args.input_file, header, r"Use of C-header")
 
-    if suspicious:
+    if args.suspicious and suspicious:
         for header in suspicious:
-            print_header_warning(input_file, header, r"Use of suspicious header (might be C)")
+            print_header_warning(args.input_file, header, r"Use of suspicious header (might be C)")
